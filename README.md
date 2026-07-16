@@ -1,5 +1,7 @@
 # cicd-pipeline-platform
 
+**[▶ Watch the walkthrough](https://youtu.be/8HLydMg_BCg)** — 9 minutes, recorded from live output.
+
 Everything required to reproduce the delivery platform this case study runs on:
 two Kubernetes clusters, a shared registry, a Jenkins controller configured as
 code, least-privilege RBAC provisioned with Terraform, and a Prometheus/Grafana
