@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        cluster: ${CLUSTER_NAME}
+
+    rule_files:
+      - /etc/prometheus/rules/*.yml
+
+    scrape_configs:
+      # Prometheus scrapes itself — a monitoring system that cannot report on
+      # its own health is a blind spot.
+      - job_name: prometheus
+        static_configs:
+          - targets: ['localhost:9090']
+
+      # Annotation-based discovery: any pod carrying prometheus.io/scrape=true
+      # is picked up automatically the moment it is deployed. New services need
+      # no Prometheus config change — the same principle as the delivery
+      # pipeline, where onboarding is declaration rather than configuration.
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            action: replace
+            target_label: service
+          # NOTE: deliberately NOT relabelling to `version` — app_build_info
+          # already carries its own `version` label, and a collision makes
+          # Prometheus rename the metric's label to `exported_version`.
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_version]
+            action: replace
+            target_label: pod_version
+
+      # Node-level health via the kubelet's own metrics endpoint.
+      - job_name: kubernetes-nodes
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)

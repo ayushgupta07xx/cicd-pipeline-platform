@@ -1,0 +1,50 @@
+# Jenkins Configuration-as-Code. Everything here is declarative and versioned.
+# Secrets are NEVER in this file — only ${ENV_VAR} references resolved at boot.
+jenkins:
+  systemMessage: "FinacPlus CI/CD — configured as code. Do not click; edit casc.yaml."
+  numExecutors: 2
+  mode: NORMAL
+  # Demo-only local realm. Production would use SSO/LDAP (see docs/security.md).
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "${JENKINS_URL_EXTERNAL:-http://localhost:8090/}"
+  timestamper:
+    allPipelines: true
+  globalLibraries:
+    libraries:
+      - name: "finacplus-cicd"
+        defaultVersion: "main"
+        implicit: false
+        allowVersionOverride: true
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "${SHARED_LIB_REPO}"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - file:
+              scope: GLOBAL
+              id: "kubeconfig-staging"
+              description: "kubeconfig — SA jenkins-deployer, ns demo, cluster staging"
+              fileName: "kubeconfig-staging.yaml"
+              secretBytes: "${KUBECONFIG_STAGING_B64}"
+          - file:
+              scope: GLOBAL
+              id: "kubeconfig-prod"
+              description: "kubeconfig — SA jenkins-deployer, ns demo, cluster prod"
+              fileName: "kubeconfig-prod.yaml"
+              secretBytes: "${KUBECONFIG_PROD_B64}"
