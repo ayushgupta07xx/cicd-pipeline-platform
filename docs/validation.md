@@ -181,12 +181,35 @@ languages exercising one library is the regression suite for the library itself
 
 ---
 
-## 5. Known gaps
+## 5. Library unit tests
 
-- **No unit tests for the shared library itself.** It is verified end-to-end by
-  two real services. A production library would add JenkinsPipelineUnit/Spock
-  tests so a Groovy regression is caught without running a full pipeline.
-- **The smoke test checks status codes, not correctness.** Contract testing
-  belongs in the application's own suite.
-- **No load or soak testing.** A real promotion gate might require a
-  performance baseline.
+`DeployConfig` receives the `CpsScript` object by constructor rather than
+reaching for it globally, so it is testable with a stub and no Jenkins:
+
+```bash
+cd cicd-pipeline-shared-library
+./test/run-tests.sh
+```
+
+12 tests covering config parsing, fail-fast validation, branch filtering, image
+tag generation and security defaults. Two are regression tests for defects this
+project actually hit:
+
+| Test | Guards against |
+|---|---|
+| `test.image required when test.commands present` | The library once hardcoded a Python image, silently running `npm test` inside `python:3.12-slim` |
+| `imageRef sanitises branch names into valid docker tags` | A branch named `feature/x` yields an invalid Docker tag and fails at push |
+
+They run in a pinned container, so no local Groovy toolchain is needed and the
+result does not depend on the machine.
+
+## 6. Known gaps
+- **`Deployer` is not unit tested.** Unlike `DeployConfig`, it is mostly shell
+  orchestration, and testing it in isolation would mean asserting on generated
+  command strings — which tests the assertion, not the behaviour. It is covered
+  end-to-end instead: procedures P4–P6 exercise every path including rollback.
+- **The smoke test checks status codes, not correctness.** It proves the service
+  answers, not that the answer is right. Contract testing belongs in the
+  application's own suite.
+- **No load or soak testing.** Out of scope for a delivery-pipeline case study,
+  though a real promotion gate might require a performance baseline.
