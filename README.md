@@ -27,11 +27,30 @@
 
 [![Watch the walkthrough](https://img.shields.io/badge/▶_Watch_the_9_min_walkthrough-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/8HLydMg_BCg)
 
-📘 **[Documentation](docs/)** · ⚙️ **[Shared Library](https://github.com/ayushgupta07xx/cicd-pipeline-shared-library)** · 🐍 **[Sample App](https://github.com/ayushgupta07xx/cicd-pipeline-sample-app)** · 🟩 **[Orders API](https://github.com/ayushgupta07xx/cicd-pipeline-orders-api)**
+📘 **[Read the case study](docs/)** · ⚙️ **[Shared Library](https://github.com/ayushgupta07xx/cicd-pipeline-shared-library)** · 🐍 **[Sample App](https://github.com/ayushgupta07xx/cicd-pipeline-sample-app)** · 🟩 **[Orders API](https://github.com/ayushgupta07xx/cicd-pipeline-orders-api)**
 
 </div>
 
 ---
+
+## The case study
+
+A walkthrough of the design, the evidence behind every claim, and a constraints
+section naming what this setup compromises and what production would do instead.
+
+[![Case study — CI/CD Pipeline](docs/images/showcase-overview.png)](https://ayushgupta07xx.github.io/cicd-pipeline-sample-app/)
+
+<div align="center">
+
+**[→ Read the case study](https://ayushgupta07xx.github.io/cicd-pipeline-sample-app/)** ·
+[Architecture](https://ayushgupta07xx.github.io/cicd-pipeline-sample-app/#architecture) ·
+[Multi-repo](https://ayushgupta07xx.github.io/cicd-pipeline-sample-app/#multirepo) ·
+[Security](https://ayushgupta07xx.github.io/cicd-pipeline-sample-app/#security) ·
+[Failure handling](https://ayushgupta07xx.github.io/cicd-pipeline-sample-app/#failure) ·
+[Constraints](https://ayushgupta07xx.github.io/cicd-pipeline-sample-app/#constraints)
+
+</div>
+
 
 Application code lives elsewhere. **This repository builds the ground it runs on** — and it exists because an SRE submission whose environment is reproducible only on one laptop has failed at the thing it claims to be about.
 
